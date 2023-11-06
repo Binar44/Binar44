@@ -1,0 +1,43 @@
+$host = "";
+$db_user = "";
+$db_password = "";
+$db_name = "";
+
+$connection = @new mysqli($host, $db_user, $db_password, $db_name);
+	
+	if ($connection->connect_errno!=0)
+	{
+		echo "Error: ".$connection->connect_errno;
+	}
+	else
+	{
+	
+		if ($result = @$connection->query(
+		sprintf("SELECT * FROM echa WHERE id = '%s'",
+        mysqli_real_escape_string($connection,$_POST['search']))))
+		{
+			$isset = $result->num_rows;
+			if($isset>0)
+			{
+				$row = $result->fetch_assoc();
+                $id = $row['id'];
+                $date = $row['date'];
+                if($row['text'] == null){
+                    $text = "";
+                } else {
+                    $text = $row['text'];
+                }
+
+				$result->free_result();
+				
+			} else {
+				
+				echo "Error: Cannot find any data!";
+				
+			}
+			
+		}
+		
+		$connection->close();
+	}
+    echo $id." ".$date." ".$text;
