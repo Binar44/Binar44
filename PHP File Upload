@@ -1,0 +1,80 @@
+//FORMULARZ Z PLIKIEM
+<form action="dodajScript.php" method="post" enctype="multipart/form-data">
+
+
+
+//DODAWANIE REKORDU Z PLIKIEM
+<?php
+
+session_start();
+
+if(empty($_POST['nazwa']) || empty($_POST['opis']) || empty($_POST['cena'])){
+    $_SESSION['error'] = '<p class="error">Uzupełnij poprawnie formularz!</p>';
+    header("Location: dodaj.php");
+    exit();
+}
+
+$target_dir = "img/";
+$target_file = $target_dir . basename($_FILES["zdjecie"]["name"]);
+$uploadOk = 1;
+
+if (move_uploaded_file($_FILES["zdjecie"]["tmp_name"], $target_file)) {
+    echo "The file ". htmlspecialchars( basename( $_FILES["zdjecie"]["name"])). " has been uploaded.";
+} else {
+    echo "Sorry, there was an error uploading your file.";
+}
+
+$conn = mysqli_connect("localhost", "root", "", "produkty");
+$sql = 'INSERT INTO produkty VALUES (NULL, "'.$_POST['nazwa'].'", "'.$_POST['opis'].'", "'.$_POST['cena'].'", "'.$_FILES["zdjecie"]["name"].'")';
+
+$result = mysqli_query($conn, $sql);
+
+header("Location: dodaj.php");
+exit();
+
+?>
+
+
+
+//EDYTOWANIE REKORDU Z PLIKIEM
+<?php
+
+session_start();
+
+if(empty($_POST['nazwa']) || empty($_POST['opis']) || empty($_POST['cena'])){
+    $_SESSION['error'] = '<p class="error">Żadne pole nie może być puste!</p>';
+    header("Location: dodaj.php");
+    exit();
+}
+
+if(!file_exists($_FILES['zdjecie']['tmp_name']) || !is_uploaded_file($_FILES['zdjecie']['tmp_name'])){
+
+    $conn = mysqli_connect("localhost", "root", "", "produkty");
+    $sql = 'UPDATE produkty SET nazwa = "'.$_POST['nazwa'].'", opis = "'.$_POST['opis'].'", cena = "'.$_POST['cena'].'" WHERE id = '.$_POST['idk'];
+    
+    $result = mysqli_query($conn, $sql);
+
+} else {
+
+    $target_dir = "img/";
+    $target_file = $target_dir . basename($_FILES["zdjecie"]["name"]);
+    $uploadOk = 1;
+    
+    if (move_uploaded_file($_FILES["zdjecie"]["tmp_name"], $target_file)) {
+        echo "The file ". htmlspecialchars( basename( $_FILES["zdjecie"]["name"])). " has been uploaded.";
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
+
+    $conn = mysqli_connect("localhost", "root", "", "produkty");
+    $sql = 'UPDATE produkty SET nazwa = "'.$_POST['nazwa'].'", opis = "'.$_POST['opis'].'", cena = "'.$_POST['cena'].'", zdjecie = "'.$_FILES["zdjecie"]["name"].'" WHERE id = '.$_POST['idk'];
+    
+    echo $sql;
+
+    $result = mysqli_query($conn, $sql);
+
+}
+
+header("Location: produkty-tabela.php");
+
+?>
